@@ -1,11 +1,13 @@
 import { useState, useEffect, useRef } from 'react';
 import PageLayout from "../layouts/PageLayout";
 
-const audio = new Audio('/ping.mp3'); 
-// Add sound effect
+// Updated playSound function to ensure it runs only in the browser
 const playSound = () => {
-  audio.currentTime = 0; // Reset audio to start
-  audio.play();
+  if (typeof window !== 'undefined') { // Check if running in the browser
+    const audio = new Audio('/ping.mp3');
+    audio.currentTime = 0; // Reset the audio to the beginning
+    audio.play();
+  }
 };
 
 export default function DigitSpanTest() {
@@ -27,6 +29,21 @@ export default function DigitSpanTest() {
   const [feedbackMessage, setFeedbackMessage] = useState('');
   const inputRef = useRef(null);
   const [customCharSet, setCustomCharSet] = useState('');
+
+  // Preload the audio file
+  const audioRef = useRef(null);
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      audioRef.current = new Audio('/ping.mp3');
+    }
+  }, []);
+
+  const playSound = () => {
+    if (audioRef.current) {
+      audioRef.current.currentTime = 0; // Reset the audio to the beginning
+      audioRef.current.play();
+    }
+  };
 
   // Character sets
   const characterSets = {
@@ -79,7 +96,7 @@ export default function DigitSpanTest() {
     setGameState('displaying');
     let currentIndex = 0;
 
-    const displayInterval = setInterval(() => {
+    displayIntervalRef.current = setInterval(() => {
       if (currentIndex < sequence.length) {
         // Play sound for each digit
         playSound();
@@ -89,7 +106,7 @@ export default function DigitSpanTest() {
         currentIndex++;
       } else {
         // End of sequence
-        clearInterval(displayInterval);
+        clearInterval(displayIntervalRef.current);
         setTimeout(() => {
           setFeedbackMessage('');
           setGameState('input');
@@ -100,6 +117,17 @@ export default function DigitSpanTest() {
       }
     }, config.displayTime);
   };
+
+  const displayIntervalRef = useRef(null);
+
+  useEffect(() => {
+    return () => {
+      // Cleanup interval when the component unmounts
+      if (displayIntervalRef.current) {
+        clearInterval(displayIntervalRef.current);
+      }
+    };
+  }, []);
 
   // Handle user input submission
   const handleSubmit = (e) => {
