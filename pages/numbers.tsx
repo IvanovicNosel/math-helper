@@ -55,19 +55,14 @@ export default function Numbers() {
   }) => {
     const colors =
       colorScheme === "digit-group"
-        ? [
-            "bg-green-200",
-            "bg-green-200",
-            "bg-green-200",
-            "bg-blue-200",
-            "bg-blue-200",
-            "bg-blue-200",
-            "bg-red-200",
-            "bg-red-200",
-            "bg-red-200",
-            "bg-red-200",
-          ]
+        ? ["bg-green-200", "bg-blue-200", "bg-red-200"]
         : ["bg-green-200", "bg-blue-200", "bg-red-200"];
+
+    if (colorScheme === "digit-group") {
+      const groupIndex = Math.floor((numberLength - 1 - location) / 3) % colors.length;
+      return colors[groupIndex];
+    }
+
     const colorIndex = (numberLength - 1 - location) % colors.length;
     return colors[colorIndex];
   };
@@ -114,7 +109,7 @@ export default function Numbers() {
   };
 
   const getGridClass = () => {
-    const rows = Math.ceil(number.toString().length / 10);
+    const rows = Math.ceil(boxes.length / 10); // Use boxes.length to ensure proper calculation
     return `grid grid-cols-10 text-slate-900 text-9xl grid-rows-${rows} gap-1`;
   };
 
@@ -150,7 +145,7 @@ export default function Numbers() {
         </Button>
         <span className="mx-2">Power: {power}</span>
         <Button
-          onClick={() => setPower((prevPower) => Math.min(prevPower + 1, 12))}
+          onClick={() => setPower((prevPower) => Math.min(prevPower + 1, 10))}
         >
           +
         </Button>
