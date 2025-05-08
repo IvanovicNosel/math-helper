@@ -1,4 +1,12 @@
 import { useState, useEffect, useRef } from 'react';
+import PageLayout from "../layouts/PageLayout";
+
+const audio = new Audio('/ping.mp3'); 
+// Add sound effect
+const playSound = () => {
+  audio.currentTime = 0; // Reset audio to start
+  audio.play();
+};
 
 export default function DigitSpanTest() {
   // Configuration options
@@ -73,6 +81,9 @@ export default function DigitSpanTest() {
 
     const displayInterval = setInterval(() => {
       if (currentIndex < sequence.length) {
+        // Play sound for each digit
+        playSound();
+
         // Display the current digit
         setFeedbackMessage(sequence[currentIndex]);
         currentIndex++;
@@ -158,187 +169,189 @@ export default function DigitSpanTest() {
   };
 
   return (
-    <div className="flex flex-col items-center justify-center p-6 max-w-2xl mx-auto text-gray-200 bg-gray-900">
-      <h1 className="text-3xl font-bold mb-6">Digit Span Test</h1>
+    <PageLayout>
+      <div className="flex flex-col items-center justify-center p-6 max-w-2xl mx-auto text-gray-200 bg-gray-900">
+        <h1 className="text-3xl font-bold mb-6">Digit Span Test</h1>
 
-      {/* Game Area */}
-      <div className="w-full bg-gray-800 rounded-lg p-6 mb-6 shadow-md">
-        {gameState === 'ready' && (
-          <div className="text-center">
-            <p className="mb-4">
-              This test will display a sequence of characters that will get longer each round.
-              Try to remember the sequence and input it exactly as shown.
-            </p>
-            <button
-              onClick={startGame}
-              className="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-6 rounded"
-            >
-              Start Test
-            </button>
-          </div>
-        )}
-
-        {gameState === 'displaying' && (
-          <div className="text-center">
-            <div className="text-6xl font-bold h-32 flex items-center justify-center">
-              {feedbackMessage}
-            </div>
-            <p>Watch carefully...</p>
-          </div>
-        )}
-
-        {gameState === 'input' && (
-          <div className="text-center">
-            <div className="my-4">
-              <p className="mb-4">Enter the sequence you saw:</p>
-              <input
-                type="text"
-                value={userInput}
-                onChange={(e) => setUserInput(e.target.value)}
-                onKeyPress={handleKeyPress}
-                ref={inputRef}
-                className="border-2 border-gray-700 bg-gray-700 text-gray-200 rounded px-4 py-2 w-full text-center text-xl mb-4"
-                autoFocus
-              />
+        {/* Game Area */}
+        <div className="w-full bg-gray-800 rounded-lg p-6 mb-6 shadow-md">
+          {gameState === 'ready' && (
+            <div className="text-center">
+              <p className="mb-4">
+                This test will display a sequence of characters that will get longer each round.
+                Try to remember the sequence and input it exactly as shown.
+              </p>
               <button
-                onClick={handleSubmit}
-                className="bg-green-600 hover:bg-green-700 text-white font-medium py-2 px-6 rounded"
+                onClick={startGame}
+                className="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-6 rounded"
               >
-                Submit
+                Start Test
               </button>
             </div>
-          </div>
-        )}
+          )}
 
-        {gameState === 'feedback' && (
-          <div className="text-center">
-            <p className="text-xl">{feedbackMessage}</p>
-            <p className="mt-2">Current Level: {currentRound}</p>
-            <p>Sequence Length: {config.startLength + currentRound - 1}</p>
-          </div>
-        )}
+          {gameState === 'displaying' && (
+            <div className="text-center">
+              <div className="text-6xl font-bold h-32 flex items-center justify-center">
+                {feedbackMessage}
+              </div>
+              <p>Watch carefully...</p>
+            </div>
+          )}
 
-        {gameState === 'finished' && (
-          <div className="text-center">
-            <p className="text-xl mb-4">{feedbackMessage}</p>
-            <button
-              onClick={startGame}
-              className="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-6 rounded"
-            >
-              Try Again
-            </button>
-          </div>
-        )}
-      </div>
+          {gameState === 'input' && (
+            <div className="text-center">
+              <div className="my-4">
+                <p className="mb-4">Enter the sequence you saw:</p>
+                <input
+                  type="text"
+                  value={userInput}
+                  onChange={(e) => setUserInput(e.target.value)}
+                  onKeyPress={handleKeyPress}
+                  ref={inputRef}
+                  className="border-2 border-gray-700 bg-gray-700 text-gray-200 rounded px-4 py-2 w-full text-center text-xl mb-4"
+                  autoFocus
+                />
+                <button
+                  onClick={handleSubmit}
+                  className="bg-green-600 hover:bg-green-700 text-white font-medium py-2 px-6 rounded"
+                >
+                  Submit
+                </button>
+              </div>
+            </div>
+          )}
 
-      {/* Configuration Panel */}
-      <div className="w-full bg-gray-800 rounded-lg p-6 shadow-md">
-        <h2 className="text-xl font-semibold mb-4">Test Configuration</h2>
+          {gameState === 'feedback' && (
+            <div className="text-center">
+              <p className="text-xl">{feedbackMessage}</p>
+              <p className="mt-2">Current Level: {currentRound}</p>
+              <p>Sequence Length: {config.startLength + currentRound - 1}</p>
+            </div>
+          )}
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div>
-            <label className="block text-sm font-medium text-gray-300 mb-1">
-              Starting Sequence Length
-            </label>
-            <input
-              type="number"
-              name="startLength"
-              min="1"
-              max="10"
-              value={config.startLength}
-              onChange={handleConfigChange}
-              className="border border-gray-700 bg-gray-700 text-gray-200 rounded px-3 py-2 w-full"
-              disabled={gameState !== 'ready' && gameState !== 'finished'}
-            />
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-gray-300 mb-1">
-              Display Time (ms)
-            </label>
-            <input
-              type="number"
-              name="displayTime"
-              min="200"
-              max="5000"
-              step="100"
-              value={config.displayTime}
-              onChange={handleConfigChange}
-              className="border border-gray-700 bg-gray-700 text-gray-200 rounded px-3 py-2 w-full"
-              disabled={gameState !== 'ready' && gameState !== 'finished'}
-            />
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-gray-300 mb-1">
-              Pause Between Characters (ms)
-            </label>
-            <input
-              type="number"
-              name="pauseTime"
-              min="0"
-              max="3000"
-              step="100"
-              value={config.pauseTime}
-              onChange={handleConfigChange}
-              className="border border-gray-700 bg-gray-700 text-gray-200 rounded px-3 py-2 w-full"
-              disabled={gameState !== 'ready' && gameState !== 'finished'}
-            />
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-gray-300 mb-1">
-              Character Type
-            </label>
-            <select
-              name="useCharacters"
-              value={config.useCharacters}
-              onChange={handleConfigChange}
-              className="border border-gray-700 bg-gray-700 text-gray-200 rounded px-3 py-2 w-full"
-              disabled={gameState !== 'ready' && gameState !== 'finished'}
-            >
-              <option value="numbers">Numbers</option>
-              <option value="letters">Letters</option>
-              <option value="symbols">Symbols</option>
-              <option value="custom">Custom</option>
-            </select>
-          </div>
-
-          {config.useCharacters === 'custom' && (
-            <div className="md:col-span-2">
-              <label className="block text-sm font-medium text-gray-300 mb-1">
-                Custom Character Set
-              </label>
-              <input
-                type="text"
-                value={customCharSet}
-                onChange={handleCustomCharSet}
-                className="border border-gray-700 bg-gray-700 text-gray-200 rounded px-3 py-2 w-full"
-                disabled={gameState !== 'ready' && gameState !== 'finished'}
-                placeholder="Enter characters to use (no spaces)"
-              />
+          {gameState === 'finished' && (
+            <div className="text-center">
+              <p className="text-xl mb-4">{feedbackMessage}</p>
+              <button
+                onClick={startGame}
+                className="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-6 rounded"
+              >
+                Try Again
+              </button>
             </div>
           )}
         </div>
 
-        <div className="mt-4 flex justify-end">
-          <button
-            onClick={resetConfig}
-            className="bg-gray-600 hover:bg-gray-700 text-white font-medium py-2 px-4 rounded mr-2"
-            disabled={gameState !== 'ready' && gameState !== 'finished'}
-          >
-            Reset Defaults
-          </button>
+        {/* Configuration Panel */}
+        <div className="w-full bg-gray-800 rounded-lg p-6 shadow-md">
+          <h2 className="text-xl font-semibold mb-4">Test Configuration</h2>
 
-          <button
-            onClick={startGame}
-            className="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded"
-            disabled={gameState !== 'ready' && gameState !== 'finished'}
-          >
-            Start New Test
-          </button>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-300 mb-1">
+                Starting Sequence Length
+              </label>
+              <input
+                type="number"
+                name="startLength"
+                min="1"
+                max="10"
+                value={config.startLength}
+                onChange={handleConfigChange}
+                className="border border-gray-700 bg-gray-700 text-gray-200 rounded px-3 py-2 w-full"
+                disabled={gameState !== 'ready' && gameState !== 'finished'}
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-300 mb-1">
+                Display Time (ms)
+              </label>
+              <input
+                type="number"
+                name="displayTime"
+                min="200"
+                max="5000"
+                step="100"
+                value={config.displayTime}
+                onChange={handleConfigChange}
+                className="border border-gray-700 bg-gray-700 text-gray-200 rounded px-3 py-2 w-full"
+                disabled={gameState !== 'ready' && gameState !== 'finished'}
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-300 mb-1">
+                Pause Between Characters (ms)
+              </label>
+              <input
+                type="number"
+                name="pauseTime"
+                min="0"
+                max="3000"
+                step="100"
+                value={config.pauseTime}
+                onChange={handleConfigChange}
+                className="border border-gray-700 bg-gray-700 text-gray-200 rounded px-3 py-2 w-full"
+                disabled={gameState !== 'ready' && gameState !== 'finished'}
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-300 mb-1">
+                Character Type
+              </label>
+              <select
+                name="useCharacters"
+                value={config.useCharacters}
+                onChange={handleConfigChange}
+                className="border border-gray-700 bg-gray-700 text-gray-200 rounded px-3 py-2 w-full"
+                disabled={gameState !== 'ready' && gameState !== 'finished'}
+              >
+                <option value="numbers">Numbers</option>
+                <option value="letters">Letters</option>
+                <option value="symbols">Symbols</option>
+                <option value="custom">Custom</option>
+              </select>
+            </div>
+
+            {config.useCharacters === 'custom' && (
+              <div className="md:col-span-2">
+                <label className="block text-sm font-medium text-gray-300 mb-1">
+                  Custom Character Set
+                </label>
+                <input
+                  type="text"
+                  value={customCharSet}
+                  onChange={handleCustomCharSet}
+                  className="border border-gray-700 bg-gray-700 text-gray-200 rounded px-3 py-2 w-full"
+                  disabled={gameState !== 'ready' && gameState !== 'finished'}
+                  placeholder="Enter characters to use (no spaces)"
+                />
+              </div>
+            )}
+          </div>
+
+          <div className="mt-4 flex justify-end">
+            <button
+              onClick={resetConfig}
+              className="bg-gray-600 hover:bg-gray-700 text-white font-medium py-2 px-4 rounded mr-2"
+              disabled={gameState !== 'ready' && gameState !== 'finished'}
+            >
+              Reset Defaults
+            </button>
+
+            <button
+              onClick={startGame}
+              className="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded"
+              disabled={gameState !== 'ready' && gameState !== 'finished'}
+            >
+              Start New Test
+            </button>
+          </div>
         </div>
       </div>
-    </div>
+    </PageLayout>
   );
 }
